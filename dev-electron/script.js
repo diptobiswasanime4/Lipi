@@ -10,8 +10,8 @@ class Canvas {
     this.canvas = document.createElement("canvas");
     this.ctx = this.canvas.getContext("2d");
 
-    this.canvas.width = 1000;
-    this.canvas.height = 600;
+    this.canvas.width = 1250;
+    this.canvas.height = 750;
 
     canvasContainer.appendChild(this.canvas);
 
