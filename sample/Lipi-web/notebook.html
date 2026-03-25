@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lipi</title>
+    <style>
+      body {
+        margin: 0;
+        background: #c0c0c0;
+      }
+
+      .controls {
+        display: flex;
+        gap: 5px;
+        background-color: whitesmoke;
+        margin-bottom: 10px;
+        padding: 5px;
+        position: sticky;
+        top: 0;
+      }
+
+      canvas {
+        background: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="controls">
+      <div id="newPage">📄</div>
+      <div id="saveDrawing">💾</div>
+      <input type="color" id="penColor" value="#000000" />
+      <input type="range" id="brushSize" min="1" max="10" value="2" />
+      <div id="pencilSelect">✏️</div>
+      <div id="penSelect">✒️</div>
+      <div id="brushSelect">🖌️</div>
+      <div id="rubberSelect">⚪</div>
+      <div id="undoAction">↩️</div>
+      <div id="redoAction">⤴️</div>
+    </div>
+    <div id="canvasContainer"></div>
+    <script src="notebook.js"></script>
+  </body>
+</html>

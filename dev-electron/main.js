@@ -25,6 +25,10 @@ ipcMain.on("save-drawings", (event, data) => {
   console.log(drawingsPath);
 });
 
+ipcMain.on("open-notebook", () => {
+  win.loadFile("notebook.html");
+});
+
 ipcMain.handle("load-drawings", () => {
   if (fs.existsSync(drawingsPath)) {
     return JSON.parse(fs.readFileSync(drawingsPath, "utf-8"));

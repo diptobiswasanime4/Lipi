@@ -1,145 +1,50 @@
-let allCanvas = [];
-const canvasContainer = document.getElementById("canvasContainer");
-const newPageElem = document.getElementById("newPage");
-const saveDrawingElem = document.getElementById("saveDrawing");
-const penColorElem = document.getElementById("penColor");
-const brushSizeSliderElem = document.getElementById("brushSize");
+const createBtn = document.getElementById("createNotebook");
+const notebookInput = document.getElementById("newNotebookName");
+const notebookList = document.getElementById("notebookList");
 
-class Canvas {
-  constructor() {
-    this.canvas = document.createElement("canvas");
-    this.ctx = this.canvas.getContext("2d");
+createBtn.addEventListener("click", async () => {
+  const name = notebookInput.value.trim();
+  if (!name) return;
 
-    this.canvas.width = 1250;
-    this.canvas.height = 750;
+  const notebook = document.createElement("div");
 
-    canvasContainer.appendChild(this.canvas);
+  notebook.id = name;
+  notebook.textContent = "📄 " + name;
+  notebook.className = "notebook";
 
-    this.isDrawing = false;
-    this.oldX = undefined;
-    this.oldY = undefined;
-    this.curX = undefined;
-    this.curY = undefined;
-    this.currentStroke = [];
-    this.allStrokes = [];
+  notebook.addEventListener("click", () => {
+    window.location.href = `notebook.html?name=${encodeURIComponent(name)}`;
+  });
 
-    this.canvas.addEventListener("pointerdown", (e) =>
-      this.handlePointerDown(e)
-    );
-    this.canvas.addEventListener("pointermove", (e) =>
-      this.handlePointerMove(e)
-    );
-    this.canvas.addEventListener("pointerup", (e) => this.handlePointerUp(e));
-    this.canvas.addEventListener("pointercancel", (e) =>
-      this.handlePointerUp(e)
-    );
+  notebookList.appendChild(notebook);
 
-    document.addEventListener("touchstart", (e) => e.preventDefault(), {
-      passive: false,
-    });
-    document.addEventListener("touchend", (e) => e.preventDefault(), {
-      passive: false,
-    });
-    document.addEventListener("touchmove", (e) => e.preventDefault(), {
-      passive: false,
-    });
-  }
+  // get existing notebooks from electron
+  const notebooks = (await window.electronAPI.getNotebooks()) || [];
 
-  handlePointerDown(e) {
-    this.isDrawing = true;
-    this.currentStroke = [];
+  notebooks.push(name);
 
-    const rect = this.canvas.getBoundingClientRect();
-    this.curX = e.clientX - rect.left;
-    this.curY = e.clientY - rect.top;
-    this.oldX = this.curX;
-    this.oldY = this.curY;
-  }
+  // save back using electron
+  await window.electronAPI.saveNotebooks(notebooks);
 
-  handlePointerMove(e) {
-    if (!this.isDrawing) return;
-
-    const rect = this.canvas.getBoundingClientRect();
-    this.curX = e.clientX - rect.left;
-    this.curY = e.clientY - rect.top;
-
-    const strokeData = {
-      oldX: this.oldX,
-      oldY: this.oldY,
-      curX: this.curX,
-      curY: this.curY,
-      color: penColorElem.value,
-      lineWidth: parseInt(brushSizeSliderElem.value),
-      pointerType: e.pointerType,
-      pressure: e.pressure,
-    };
-
-    this.drawLine(strokeData);
-    this.currentStroke.push(strokeData);
-
-    this.oldX = this.curX;
-    this.oldY = this.curY;
-  }
-
-  handlePointerUp(e) {
-    if (this.isDrawing && this.currentStroke.length > 0) {
-      this.allStrokes.push([...this.currentStroke]);
-    }
-
-    this.isDrawing = false;
-    this.oldX = this.oldY = undefined;
-    this.currentStroke = [];
-  }
-
-  drawLine(strokeData) {
-    const { oldX, oldY, curX, curY, color, lineWidth } = strokeData;
-
-    this.ctx.beginPath();
-    this.ctx.strokeStyle = color;
-    this.ctx.lineWidth = lineWidth;
-    this.ctx.lineCap = "round";
-
-    this.ctx.moveTo(oldX, oldY);
-    this.ctx.lineTo(curX, curY);
-    this.ctx.stroke();
-    this.ctx.closePath();
-  }
-
-  loadStrokes() {
-    for (let stroke of this.allStrokes) {
-      for (let s of stroke) {
-        this.drawLine(s);
-      }
-    }
-  }
-}
-
-function createNewCanvas() {
-  const canvas = new Canvas();
-  allCanvas.push(canvas);
-  return canvas;
-}
-
-createNewCanvas();
-
-newPageElem.addEventListener("click", () => {
-  createNewCanvas();
+  notebookInput.value = "";
 });
 
-saveDrawingElem.addEventListener("click", () => {
-  const data = allCanvas.map((c) => c.allStrokes);
-  window.electronAPI.saveDrawings(data);
-});
-
+// load existing notebooks (same structure as browser code)
 (async () => {
-  const saved = await window.electronAPI.loadDrawings();
-  if (saved && Array.isArray(saved)) {
-    canvasContainer.innerHTML = "";
-    allCanvas = [];
-    for (let strokes of saved) {
-      const c = createNewCanvas();
-      c.allStrokes = strokes;
-      c.loadStrokes();
-    }
-  }
+  const saved = (await window.electronAPI.getNotebooks()) || [];
+
+  saved.forEach((name) => {
+    const notebook = document.createElement("div");
+
+    notebook.id = name;
+    notebook.textContent = "📄 " + name;
+    notebook.className = "notebook";
+
+    notebook.addEventListener("click", () => {
+      // window.location.href = `notebook.html?name=${encodeURIComponent(name)}`;
+      window.location.href = `notebook.html`;
+    });
+
+    notebookList.appendChild(notebook);
+  });
 })();
