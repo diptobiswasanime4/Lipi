@@ -19,7 +19,7 @@ const notebookName = params.get("name") || "default";
 const notebookType = params.get("type") || "white";
 const notebookSize = params.get("size") || "Landscape";
 
-let currentTool = "pencil";
+let currentTool = "pen";
 
 backBtnElem.addEventListener("click", () => {
   window.history.back();
@@ -110,6 +110,10 @@ class Canvas {
     this.oldY = undefined;
     this.curX = undefined;
     this.curY = undefined;
+
+    this.oldMidX = undefined;
+    this.oldMidY = undefined;
+
     this.currentStroke = [];
     this.allStrokes = [];
     this.lastPressure = 0.5;
@@ -145,6 +149,11 @@ class Canvas {
     this.curY = e.clientY - rect.top;
     this.oldX = this.curX;
     this.oldY = this.curY;
+
+    // ⭐ reset smoothing
+    this.oldMidX = undefined;
+    this.oldMidY = undefined;
+    this.lastPressure = e.pressure || 0.5;
   }
 
   handlePointerMove(e) {
@@ -209,7 +218,7 @@ class Canvas {
       this.ctx.globalCompositeOperation = "source-over";
       this.ctx.strokeStyle = color;
 
-      const fade = Math.max(1, lineWidth - progress * 0.15);
+      const fade = Math.max(1, lineWidth - progress * 0.05);
       this.ctx.lineWidth = fade;
     } else if (tool === "pencil") {
       this.ctx.globalCompositeOperation = "source-over";
@@ -234,14 +243,31 @@ class Canvas {
 
     this.ctx.lineCap = "round";
 
-    this.ctx.moveTo(oldX, oldY);
-    this.ctx.lineTo(curX, curY);
+    const midX = (oldX + curX) / 2;
+    const midY = (oldY + curY) / 2;
+
+    if (this.oldMidX === undefined) {
+      // first segment of stroke
+      this.ctx.moveTo(oldX, oldY);
+      this.ctx.lineTo(midX, midY);
+    } else {
+      // smooth curve
+      this.ctx.moveTo(this.oldMidX, this.oldMidY);
+      this.ctx.quadraticCurveTo(oldX, oldY, midX, midY);
+    }
+
+    this.oldMidX = midX;
+    this.oldMidY = midY;
+
     this.ctx.stroke();
     this.ctx.closePath();
   }
 
   loadStrokes() {
     for (let stroke of this.allStrokes) {
+      this.oldMidX = undefined;
+      this.oldMidY = undefined;
+      this.lastPressure = 0.5;
       for (let s of stroke) {
         this.drawLine(s);
       }
