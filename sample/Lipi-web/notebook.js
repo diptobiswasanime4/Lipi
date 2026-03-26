@@ -347,15 +347,15 @@ function drawHanzi(ctx, canvas) {
     marginY = 50;
     boxSize = 250;
   } else {
-    boxesPerRow = 3;
-    rows = 4;
+    boxesPerRow = 5;
+    rows = 7;
 
-    gapX = 50;
-    gapY = 80;
+    gapX = 15;
+    gapY = 20;
 
-    marginX = 60;
-    marginY = 60;
-    boxSize = 260;
+    marginX = 20;
+    marginY = 20;
+    boxSize = 180;
   }
 
   ctx.strokeStyle = "#cccccc";
