@@ -5,6 +5,7 @@ const saveDrawingElem = document.getElementById("saveDrawing");
 const penColorElem = document.getElementById("penColor");
 const brushSizeSliderElem = document.getElementById("brushSize");
 const backBtnElem = document.getElementById("backBtn");
+const downloadBtnElem = document.getElementById("downloadBtn");
 
 const penElem = document.getElementById("penSelect");
 const pencilElem = document.getElementById("pencilSelect");
@@ -16,11 +17,45 @@ const undoAction = document.getElementById("undoAction");
 const params = new URLSearchParams(window.location.search);
 const notebookName = params.get("name") || "default";
 const notebookType = params.get("type") || "white";
+const notebookSize = params.get("size") || "Landscape";
 
 let currentTool = "pencil";
 
 backBtnElem.addEventListener("click", () => {
   window.history.back();
+});
+
+downloadBtnElem.addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+
+  let orientation;
+  let pageWidth;
+  let pageHeight;
+
+  if (notebookSize === "A4") {
+    orientation = "portrait";
+    pageWidth = 1000;
+    pageHeight = 1420;
+  } else {
+    orientation = "landscape";
+    pageWidth = 1250;
+    pageHeight = 750;
+  }
+
+  const pdf = new jsPDF(orientation, "px", [pageWidth, pageHeight]);
+
+  for (let i = 0; i < allCanvas.length; i++) {
+    const canvas = allCanvas[i].canvas;
+    const imgData = canvas.toDataURL("image/png");
+
+    if (i !== 0) {
+      pdf.addPage([pageWidth, pageHeight], orientation);
+    }
+
+    pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+  }
+
+  pdf.save(`${notebookName}.pdf`);
 });
 
 penElem.addEventListener("click", () => {
@@ -60,8 +95,13 @@ class Canvas {
     this.canvas = document.createElement("canvas");
     this.ctx = this.canvas.getContext("2d");
 
-    this.canvas.width = 1250;
-    this.canvas.height = 750;
+    if (notebookSize == "A4") {
+      this.canvas.width = 1000;
+      this.canvas.height = 1420;
+    } else {
+      this.canvas.width = 1250;
+      this.canvas.height = 750;
+    }
 
     canvasContainer.appendChild(this.canvas);
 
@@ -140,7 +180,7 @@ class Canvas {
       this.allStrokes.push([...this.currentStroke]);
     }
 
-    console.log(this.allStrokes);
+    console.log("PUp all Strokes: ", this.allStrokes);
 
     this.isDrawing = false;
     this.oldX = this.oldY = undefined;
@@ -175,8 +215,8 @@ class Canvas {
       this.ctx.globalCompositeOperation = "source-over";
       this.ctx.strokeStyle = color;
 
-      const minWidth = lineWidth * 0.3;
-      const maxWidth = lineWidth * 3;
+      const minWidth = lineWidth * 0.5;
+      const maxWidth = lineWidth * 5;
 
       const safePressure = Math.max(0.15, pressure);
 
@@ -293,15 +333,30 @@ function drawDots(ctx, canvas) {
 function drawHanzi(ctx, canvas) {
   drawWhite(ctx, canvas);
 
-  const boxesPerRow = 4;
-  const rows = 2;
+  let boxesPerRow, rows;
+  let gapX, gapY, boxSize;
+  let marginX, marginY;
+  if (notebookSize == "Landscape") {
+    boxesPerRow = 4;
+    rows = 2;
 
-  const marginX = 50;
-  const marginY = 50;
-  const gapX = 50;
-  const gapY = 100;
+    gapX = 50;
+    gapY = 100;
 
-  const boxSize = 250;
+    marginX = 50;
+    marginY = 50;
+    boxSize = 250;
+  } else {
+    boxesPerRow = 3;
+    rows = 4;
+
+    gapX = 50;
+    gapY = 80;
+
+    marginX = 60;
+    marginY = 60;
+    boxSize = 260;
+  }
 
   ctx.strokeStyle = "#cccccc";
   ctx.lineWidth = 1;
@@ -323,6 +378,8 @@ function drawHanzi(ctx, canvas) {
 // Undo Action in last page
 undoAction.addEventListener("click", () => {
   const currentCanvas = allCanvas[allCanvas.length - 1];
+  console.log("Undo all strokes: ", currentCanvas.allStrokes);
+
   if (currentCanvas && currentCanvas.allStrokes.length > 0) {
     currentCanvas.allStrokes.pop();
     currentCanvas.ctx.clearRect(

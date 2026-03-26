@@ -33,8 +33,15 @@
     <div class="controls">
       <div class="control" id="newPage">📄</div>
       <div class="control" id="saveDrawing">💾</div>
-      <input type="color" id="penColor" value="#000000" />
-      <input type="range" id="brushSize" min="1" max="10" value="4" />
+      <input class="control" type="color" id="penColor" value="#000000" />
+      <input
+        class="control"
+        type="range"
+        id="brushSize"
+        min="1"
+        max="10"
+        value="3"
+      />
       <div class="control" id="pencilSelect">✏️</div>
       <div class="control" id="penSelect">✒️</div>
       <div class="control" id="brushSelect">🖌️</div>
@@ -42,8 +49,10 @@
       <div class="control" id="undoAction">↩️</div>
       <div class="control" id="redoAction">⤴️</div>
       <div class="control" id="backBtn">⬅️</div>
+      <div class="control" id="downloadBtn">⬇️</div>
     </div>
     <div id="canvasContainer"></div>
     <script src="notebook.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   </body>
 </html>

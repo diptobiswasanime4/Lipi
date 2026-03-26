@@ -1,3 +1,6 @@
+const sizeA4 = document.getElementById("sizeA4");
+const sizeLandscape = document.getElementById("sizeLandscape");
+
 const createWhiteBtn = document.getElementById("createNotebookWhite");
 const createLineBtn = document.getElementById("createNotebookLine");
 const createGridBtn = document.getElementById("createNotebookGrid");
@@ -11,6 +14,20 @@ createLineBtn.addEventListener("click", () => addNotebook("line"));
 createGridBtn.addEventListener("click", () => addNotebook("grid"));
 createDotBtn.addEventListener("click", () => addNotebook("dot"));
 createHanziBtn.addEventListener("click", () => addNotebook("hanzi"));
+
+let notebookSize = "Landscape";
+
+sizeA4.addEventListener("click", () => {
+  notebookSize = "A4";
+  sizeA4.style.background = "lightgray";
+  sizeLandscape.style.background = "none";
+});
+
+sizeLandscape.addEventListener("click", () => {
+  notebookSize = "Landscape";
+  sizeLandscape.style.background = "lightgray";
+  sizeA4.style.background = "none";
+});
 
 function addNotebook(type) {
   const name = notebookInput.value.trim();
@@ -26,10 +43,12 @@ function addNotebook(type) {
   notebookList.appendChild(notebook);
 
   const notebooks = JSON.parse(localStorage.getItem("notebooks")) || [];
-  notebooks.push({ name, type });
+  notebooks.push({ name, type, size: notebookSize });
   localStorage.setItem("notebooks", JSON.stringify(notebooks));
 
   notebookInput.value = "";
+
+  window.location.href = `notebook.html?name=${encodeURIComponent(name)}&type=${type}&size=${notebookSize}`;
 }
 
 // load existing notebooks
@@ -43,7 +62,7 @@ saved.forEach((item) => {
   notebook.className = "notebook";
 
   notebook.addEventListener("click", () => {
-    window.location.href = `notebook.html?name=${encodeURIComponent(item.name)}&type=${item.type}`;
+    window.location.href = `notebook.html?name=${encodeURIComponent(item.name)}&type=${item.type}&size=${item.size}`;
   });
 
   notebookList.appendChild(notebook);
