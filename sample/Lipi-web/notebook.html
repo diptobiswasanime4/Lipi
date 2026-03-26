@@ -20,6 +20,10 @@
         top: 0;
       }
 
+      .control {
+        cursor: pointer;
+      }
+
       canvas {
         background: white;
       }
@@ -27,16 +31,17 @@
   </head>
   <body>
     <div class="controls">
-      <div id="newPage">📄</div>
-      <div id="saveDrawing">💾</div>
+      <div class="control" id="newPage">📄</div>
+      <div class="control" id="saveDrawing">💾</div>
       <input type="color" id="penColor" value="#000000" />
-      <input type="range" id="brushSize" min="1" max="10" value="2" />
-      <div id="pencilSelect">✏️</div>
-      <div id="penSelect">✒️</div>
-      <div id="brushSelect">🖌️</div>
-      <div id="rubberSelect">⚪</div>
-      <div id="undoAction">↩️</div>
-      <div id="redoAction">⤴️</div>
+      <input type="range" id="brushSize" min="1" max="10" value="4" />
+      <div class="control" id="pencilSelect">✏️</div>
+      <div class="control" id="penSelect">✒️</div>
+      <div class="control" id="brushSelect">🖌️</div>
+      <div class="control" id="rubberSelect">⚪</div>
+      <div class="control" id="undoAction">↩️</div>
+      <div class="control" id="redoAction">⤴️</div>
+      <div class="control" id="backBtn">⬅️</div>
     </div>
     <div id="canvasContainer"></div>
     <script src="notebook.js"></script>

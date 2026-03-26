@@ -4,6 +4,7 @@ const newPageElem = document.getElementById("newPage");
 const saveDrawingElem = document.getElementById("saveDrawing");
 const penColorElem = document.getElementById("penColor");
 const brushSizeSliderElem = document.getElementById("brushSize");
+const backBtnElem = document.getElementById("backBtn");
 
 const penElem = document.getElementById("penSelect");
 const pencilElem = document.getElementById("pencilSelect");
@@ -14,8 +15,13 @@ const undoAction = document.getElementById("undoAction");
 
 const params = new URLSearchParams(window.location.search);
 const notebookName = params.get("name") || "default";
+const notebookType = params.get("type") || "white";
 
 let currentTool = "pencil";
+
+backBtnElem.addEventListener("click", () => {
+  window.history.back();
+});
 
 penElem.addEventListener("click", () => {
   currentTool = "pen";
@@ -66,6 +72,7 @@ class Canvas {
     this.curY = undefined;
     this.currentStroke = [];
     this.allStrokes = [];
+    this.lastPressure = 0.5;
 
     this.canvas.addEventListener("pointerdown", (e) =>
       this.handlePointerDown(e),
@@ -168,10 +175,16 @@ class Canvas {
       this.ctx.globalCompositeOperation = "source-over";
       this.ctx.strokeStyle = color;
 
-      const minWidth = lineWidth * 0.2;
-      const maxWidth = lineWidth * 5;
+      const minWidth = lineWidth * 0.3;
+      const maxWidth = lineWidth * 3;
 
-      const width = minWidth + (maxWidth - minWidth) * pressure;
+      const safePressure = Math.max(0.15, pressure);
+
+      const smoothPressure = this.lastPressure * 0.6 + safePressure * 0.4;
+
+      this.lastPressure = smoothPressure;
+
+      const width = minWidth + (maxWidth - minWidth) * smoothPressure;
       this.ctx.lineWidth = width;
     } else {
       this.ctx.globalCompositeOperation = "source-over";
@@ -198,11 +211,114 @@ class Canvas {
 
 function createNewCanvas() {
   const canvas = new Canvas();
+
+  if (notebookType === "line") {
+    drawLines(canvas.ctx, canvas.canvas);
+  } else if (notebookType === "grid") {
+    drawGrid(canvas.ctx, canvas.canvas);
+  } else if (notebookType === "dot") {
+    drawDots(canvas.ctx, canvas.canvas);
+  } else if (notebookType === "hanzi") {
+    drawHanzi(canvas.ctx, canvas.canvas);
+  } else {
+    drawWhite(canvas.ctx, canvas.canvas);
+  }
+
   allCanvas.push(canvas);
   return canvas;
 }
 
 createNewCanvas();
+
+function drawWhite(ctx, canvas) {
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function drawLines(ctx, canvas) {
+  drawWhite(ctx, canvas);
+
+  ctx.strokeStyle = "#cccccc";
+  ctx.lineWidth = 1;
+
+  const spacing = 50;
+
+  for (let y = 2 * spacing; y < canvas.height - spacing; y += spacing) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+}
+
+function drawGrid(ctx, canvas) {
+  drawWhite(ctx, canvas);
+
+  ctx.strokeStyle = "#dddddd";
+  ctx.lineWidth = 1;
+
+  const spacing = 50;
+
+  for (let y = spacing; y < canvas.height; y += spacing) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+
+  for (let x = spacing; x < canvas.width; x += spacing) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+}
+
+function drawDots(ctx, canvas) {
+  drawWhite(ctx, canvas);
+
+  ctx.fillStyle = "#cccccc";
+
+  const spacing = 50;
+
+  for (let y = spacing; y < canvas.height; y += spacing) {
+    for (let x = spacing; x < canvas.width; x += spacing) {
+      ctx.beginPath();
+      ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawHanzi(ctx, canvas) {
+  drawWhite(ctx, canvas);
+
+  const boxesPerRow = 4;
+  const rows = 2;
+
+  const marginX = 50;
+  const marginY = 50;
+  const gapX = 50;
+  const gapY = 100;
+
+  const boxSize = 250;
+
+  ctx.strokeStyle = "#cccccc";
+  ctx.lineWidth = 1;
+
+  let y = marginY;
+
+  for (let row = 0; row < rows; row++) {
+    let x = marginX;
+
+    for (let col = 0; col < boxesPerRow; col++) {
+      ctx.strokeRect(x, y, boxSize, boxSize);
+      x += boxSize + gapX;
+    }
+
+    y += boxSize + gapY;
+  }
+}
 
 // Undo Action in last page
 undoAction.addEventListener("click", () => {
