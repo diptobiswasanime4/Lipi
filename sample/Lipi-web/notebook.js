@@ -34,8 +34,8 @@ downloadBtnElem.addEventListener("click", async () => {
 
   if (notebookSize === "A4") {
     orientation = "portrait";
-    pageWidth = 1000;
-    pageHeight = 1420;
+    pageWidth = 1250;
+    pageHeight = 1750;
   } else {
     orientation = "landscape";
     pageWidth = 1250;
@@ -96,8 +96,8 @@ class Canvas {
     this.ctx = this.canvas.getContext("2d");
 
     if (notebookSize == "A4") {
-      this.canvas.width = 1000;
-      this.canvas.height = 1420;
+      this.canvas.width = 1250;
+      this.canvas.height = 1750;
     } else {
       this.canvas.width = 1250;
       this.canvas.height = 750;
@@ -374,14 +374,14 @@ function drawHanzi(ctx, canvas) {
     boxSize = 250;
   } else {
     boxesPerRow = 5;
-    rows = 7;
+    rows = 6;
 
-    gapX = 15;
-    gapY = 20;
+    gapX = 30;
+    gapY = 75;
 
-    marginX = 20;
-    marginY = 20;
-    boxSize = 180;
+    marginX = 40;
+    marginY = 40;
+    boxSize = 210;
   }
 
   ctx.strokeStyle = "#cccccc";
