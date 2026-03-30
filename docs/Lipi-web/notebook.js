@@ -7,6 +7,10 @@ const brushSizeSliderElem = document.getElementById("brushSize");
 const backBtnElem = document.getElementById("backBtn");
 const downloadBtnElem = document.getElementById("downloadBtn");
 
+const recentColorsElem = document.getElementById("recentColors");
+let recentColors = ["#000000", "#b23b00", "#2500c8"];
+const circles = recentColorsElem.querySelectorAll(".colorCircle");
+
 const penElem = document.getElementById("penSelect");
 const pencilElem = document.getElementById("pencilSelect");
 const brushElem = document.getElementById("brushSelect");
@@ -21,6 +25,33 @@ const notebookSize = params.get("size") || "Landscape";
 
 let currentTool = "pen";
 
+function renderRecentColors() {
+  circles.forEach((circle, i) => {
+    if (recentColors[i]) {
+      circle.style.background = recentColors[i];
+      circle.dataset.color = recentColors[i];
+    }
+  });
+}
+
+renderRecentColors();
+
+penColorElem.addEventListener("change", () => {
+  const color = penColorElem.value;
+
+  recentColors.unshift(color);
+  recentColors = recentColors.slice(0, 3);
+
+  renderRecentColors();
+});
+
+recentColorsElem.addEventListener("click", (e) => {
+  if (!e.target.classList.contains("colorCircle")) return;
+
+  const color = e.target.dataset.color;
+  penColorElem.value = color;
+});
+
 backBtnElem.addEventListener("click", () => {
   window.history.back();
 });
@@ -34,8 +65,8 @@ downloadBtnElem.addEventListener("click", async () => {
 
   if (notebookSize === "A4") {
     orientation = "portrait";
-    pageWidth = 1000;
-    pageHeight = 1420;
+    pageWidth = 1250;
+    pageHeight = 1750;
   } else {
     orientation = "landscape";
     pageWidth = 1250;
@@ -96,8 +127,8 @@ class Canvas {
     this.ctx = this.canvas.getContext("2d");
 
     if (notebookSize == "A4") {
-      this.canvas.width = 1000;
-      this.canvas.height = 1420;
+      this.canvas.width = 1250;
+      this.canvas.height = 1750;
     } else {
       this.canvas.width = 1250;
       this.canvas.height = 750;
@@ -374,14 +405,14 @@ function drawHanzi(ctx, canvas) {
     boxSize = 250;
   } else {
     boxesPerRow = 5;
-    rows = 7;
+    rows = 6;
 
-    gapX = 15;
-    gapY = 20;
+    gapX = 30;
+    gapY = 75;
 
-    marginX = 20;
-    marginY = 20;
-    boxSize = 180;
+    marginX = 40;
+    marginY = 40;
+    boxSize = 210;
   }
 
   ctx.strokeStyle = "#cccccc";
@@ -425,6 +456,46 @@ newPageElem.addEventListener("click", () => {
 saveDrawingElem.addEventListener("click", () => {
   const data = allCanvas.map((c) => c.allStrokes);
   localStorage.setItem(notebookName, JSON.stringify(data));
+});
+
+document.addEventListener("keydown", (e) => {
+  const currentCanvas = allCanvas[allCanvas.length - 1];
+
+  if (e.ctrlKey && e.key === "ArrowRight") {
+    brushSizeSliderElem.value = Math.min(10, +brushSizeSliderElem.value + 1);
+  }
+
+  if (e.ctrlKey && e.key === "ArrowLeft") {
+    brushSizeSliderElem.value = Math.max(1, +brushSizeSliderElem.value - 1);
+  }
+
+  if (e.key === "w") penElem.click();
+  if (e.key === "e") brushElem.click();
+  if (e.key === "q") pencilElem.click();
+  if (e.key === "r") rubberElem.click();
+
+  if (e.key === "a" && recentColors[0]) {
+    penColorElem.value = recentColors[0];
+  }
+
+  if (e.key === "s" && recentColors[1]) {
+    penColorElem.value = recentColors[1];
+  }
+
+  if (e.key === "d" && recentColors[2]) {
+    penColorElem.value = recentColors[2];
+  }
+
+  // if (e.ctrlKey && e.key === "z") undoAction.click();
+  // if (e.ctrlKey && e.key === "Enter") newPageElem.click();
+  // if (e.ctrlKey && e.key === "s") {
+  //   e.preventDefault();
+  //   saveDrawingElem.click();
+  // }
+  // if (e.ctrlKey && e.key === "d") {
+  //   e.preventDefault();
+  //   downloadBtnElem.click();
+  // }
 });
 
 (async () => {
