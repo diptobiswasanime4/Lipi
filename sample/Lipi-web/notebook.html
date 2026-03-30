@@ -23,7 +23,18 @@
       .control {
         cursor: pointer;
       }
+      .recentColors {
+        display: flex;
+        gap: 8px;
+      }
 
+      .colorCircle {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        cursor: pointer;
+      }
       canvas {
         background: white;
       }
@@ -42,6 +53,11 @@
         max="10"
         value="2"
       />
+      <div id="recentColors" class="recentColors">
+        <div class="colorCircle" data-color="#000000"></div>
+        <div class="colorCircle" data-color="#ff0000"></div>
+        <div class="colorCircle" data-color="#0000ff"></div>
+      </div>
       <div class="control" id="pencilSelect">✏️</div>
       <div class="control" id="penSelect">✒️</div>
       <div class="control" id="brushSelect">🖌️</div>

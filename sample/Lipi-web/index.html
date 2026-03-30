@@ -32,6 +32,17 @@
         color: aqua;
         cursor: pointer;
       }
+      .notebookRow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .notebookRow > button {
+        font-size: 14px;
+        padding: 3px 6px;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -46,7 +57,13 @@
     <button class="create" id="createNotebookGrid">Grid 📝</button>
     <button class="create" id="createNotebookDot">Dot 📝</button>
     <button class="create" id="createNotebookHanzi">Hanzi 📝</button>
-    <div id="notebookList"></div>
+    <div id="notebookList">
+      <!-- <div class="notebookRow">
+        <div class="notebook">📄 Name</div>
+        <button class="copyBtn">📋</button>
+        <button class="deleteBtn">🗑️</button>
+      </div> -->
+    </div>
     <script src="script.js"></script>
   </body>
 </html>
